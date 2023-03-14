@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "fastapi_file_server"
+version = "0.1.0"
+authors = [
+    {name = "WDW", email = "boa3465@gmail.com"},
+]
+description = "fastapi file server"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "build",
+    "setuptools",
+    "fastapi",
+    "sqlalchemy",
+    "uvicorn[standard]",
+    "pydantic[dotenv]",
+    "jinja2",
+    "cryptography",
+    "python-jose[cryptography]",
+    "python-multipart",
+    "fastapi-pagination",
+    "aiofiles",
+]
+
+
+[tool.setuptools.package-data]
+fastapi_file_server = ["**/*.*"]
+
+
+[project.urls]
+homepage = "https://github.com/boa9448/FastAPIFileServer"
+bug_tracker = "https://github.com/boa9448/FastAPIFileServer/issues"

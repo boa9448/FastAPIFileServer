@@ -1,0 +1,12 @@
+build
+setuptools
+fastapi
+sqlalchemy
+uvicorn[standard]
+pydantic[dotenv]
+jinja2
+cryptography
+python-jose[cryptography]
+python-multipart
+fastapi-pagination
+aiofiles
