@@ -15,7 +15,7 @@
         const user_id = $("#user-id").val();
         const password = $("#password").val();
 
-        const jqXHR = login(user_id, password);
+        const jqXHR = user_login(user_id, password);
 
         show_spinner(true);
         jqXHR.then(function(data, textStatus, jqXHR){

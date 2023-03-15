@@ -8,6 +8,13 @@ class BaseException(HTTPException):
         super().__init__(*args, **kwargs)
 
 
+class RedirectException(BaseException):
+    def __init__(self, url : str, detail : Any = None, status_code : int = 302):
+        super().__init__(status_code = status_code
+                        , detail = detail
+                        , headers = {"Location" : url})
+
+
 class PassWordNotMatch(BaseException):
     def __init__(self):
         super().__init__(status_code=400, detail="Password not match")

@@ -10,3 +10,4 @@ python-jose[cryptography]
 python-multipart
 fastapi-pagination
 aiofiles
+itsdangerous
