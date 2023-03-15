@@ -9,6 +9,11 @@ g_templates = Jinja2Templates(directory=templates_dir)
 
 def get_render(request: Request):
     def _render(html_file: str, context: dict = {}):
-        return g_templates.TemplateResponse(html_file, {"request": request, **context})
+        query_params = dict(request.query_params)
+        path_params = dict(request.path_params)
+        return g_templates.TemplateResponse(html_file, {"request": request
+                                                        , "query_params": query_params
+                                                        , "path_params": path_params
+                                                        , **context})
     
     return _render

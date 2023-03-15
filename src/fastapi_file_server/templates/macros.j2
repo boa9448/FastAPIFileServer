@@ -1,0 +1,11 @@
+{% macro query_param_to_js_variable(query_params) -%}
+    {{ "var" }} {{ "query_params" }} = {{
+        query_params | safe
+    }};
+{%- endmacro %}
+
+{% macro path_param_to_js_variable(path_params) -%}
+    {{ "var" }} {{ "path_params" }} = {{
+        path_params | safe
+    }};
+{%- endmacro %}
