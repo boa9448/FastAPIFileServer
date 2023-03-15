@@ -15,7 +15,7 @@ def token_required(token: str = Depends(oauth2_scheme)):
     return token
 
 
-def get_user(auth_token:str = Depends(token_required), db: Session = Depends(get_db)):
+def get_current_user(auth_token:str = Depends(token_required), db: Session = Depends(get_db)):
     if not auth_token:
         raise exceptions.AuthTokenNotProvided()
 
@@ -34,14 +34,14 @@ def get_user(auth_token:str = Depends(token_required), db: Session = Depends(get
     return db_user
 
 
-def active_required(db_user = Depends(get_user)):
+def active_required(db_user = Depends(get_current_user)):
     if not db_user.is_active:
         raise exceptions.UserIsNotActive()
     
     return db_user
 
 
-def admin_required(db_user = Depends(get_user)):
+def admin_required(db_user = Depends(get_current_user)):
     if not db_user.is_admin:
         raise exceptions.UserIsNotAdmin()
     

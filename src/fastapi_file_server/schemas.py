@@ -57,3 +57,28 @@ class File(FileBase):
 
     class Config:
         orm_mode = True
+
+
+class LicenseBase(BaseModel):
+    name: str
+    user_id: int
+    file_id: int
+    is_active: bool
+    valid_date: datetime
+
+
+class LicenseCreate(LicenseBase):
+    pass
+
+
+class LicenseUpdate(LicenseBase):
+    pass
+
+
+class License(LicenseBase):
+    id: int
+    create_date: datetime
+    update_date: datetime
+
+    class Config:
+        orm_mode = True

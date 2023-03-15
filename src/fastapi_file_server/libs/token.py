@@ -33,7 +33,8 @@ def decode_token(token: str) -> dict:
         payload = jwt.decode(token, TOKEN_SECRET_KEY, algorithms=[ALGORITHM])
         if payload is None:
             raise TokenDecodeException()
-    except JWTError as e: 
+    except JWTError as e:
+        print(e)
         raise TokenDecodeException()
 
     return payload

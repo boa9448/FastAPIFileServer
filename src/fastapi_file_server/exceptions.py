@@ -51,3 +51,8 @@ class TokenDecodeException(BaseException):
 class FileNotFound(BaseException):
     def __init__(self):
         super().__init__(status_code=404, detail="File not found")
+
+
+class LicenseNotFound(BaseException):
+    def __init__(self):
+        super().__init__(status_code=404, detail="License not found")

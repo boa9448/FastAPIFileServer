@@ -1,47 +1,47 @@
 import os
+from datetime import datetime
 
 import aiofiles
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, UploadFile, Query
 from fastapi.responses import FileResponse
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
 
-from fastapi_file_server import schemas, crud, models
+from fastapi_file_server import schemas, crud, models, exceptions
 from fastapi_file_server.config import get_config
 from fastapi_file_server.database import get_db
-from fastapi_file_server.libs.api_depends import (active_required
-                                                  , admin_required
-                                                  , get_user)
+from fastapi_file_server.libs import token
+from fastapi_file_server.libs.license import is_alive_license
+from fastapi_file_server.libs.api_depends import admin_required
 
 
 vrify_router = APIRouter(dependencies=[Depends(admin_required)])
-router = APIRouter(prefix="/api/v1/file", tags=["file"], dependencies=[Depends(active_required)])
+router = APIRouter(prefix="/api/v1/file", tags=["file"])
 FILE_DIR = os.path.abspath(get_config().file_dir)
 
 
-@router.get("/list/", response_model=Page[schemas.File])
-async def list_files(db_user: models.User = Depends(get_user), db: Session = Depends(get_db)):
+@vrify_router.get("/list/", response_model=Page[schemas.File])
+async def list_file(db: Session = Depends(get_db)):
     file_query = crud.get_file_list_query(db)
-    file_query = file_query.filter(models.File.is_active == True)
     return paginate(file_query)
 
 
 @router.get("/download/{id_}/", response_class=FileResponse)
-async def download_file(id_: int, db: Session = Depends(get_db)):
+async def download_file(id_: int
+                        , license_token: str = Query()
+                        , db: Session = Depends(get_db)):
+    decode_license_token = token.decode_token(license_token)
+    license_id = int(decode_license_token.get("sub"))
+    db_license = crud.get_license(license_id, db)
+    is_alive = is_alive_license(db_license) and db_license.file_id == id_
+    if is_alive is False:
+        raise exceptions.FileNotFound()
+
     db_file = crud.get_file(id_, db)
-    file = schemas.File.from_orm(db_file)
-
-    file_name = file.save_name
+    file_name = db_file.save_name
     file_path = os.path.join(FILE_DIR, file_name)
-
-    return FileResponse(file_path, filename=file.name)
-
-
-@vrify_router.get("/list/all/", response_model=Page[schemas.File])
-async def list_all_files(db: Session = Depends(get_db)):
-    file_query = crud.get_file_list_query(db)
-    return paginate(file_query)
+    return FileResponse(file_path, filename=db_file.name)
 
 
 @vrify_router.post("/upload/", response_model=schemas.File)

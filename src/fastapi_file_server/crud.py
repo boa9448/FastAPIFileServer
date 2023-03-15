@@ -138,3 +138,58 @@ def set_is_active_file(id_: int, is_active: bool, db: Session):
     db.commit()
     db.refresh(db_file)
     return db_file
+
+
+def get_license(id_: int, db: Session):
+    db_license = db.query(models.License).filter(models.License.id == id_).first()
+    if not db_license:
+        raise exceptions.LicenseNotFound()
+    
+    return db_license
+
+
+def get_license_list_query(db: Session):
+    return db.query(models.License)
+
+
+def create_license(license_info: schemas.LicenseCreate, db: Session):
+    license = models.License(
+        name=license_info.name,
+        user_id=license_info.user_id,
+        file_id=license_info.file_id,
+        is_active=license_info.is_active,
+        valid_date=license_info.valid_date,
+    )
+    db.add(license)
+    db.commit()
+    db.refresh(license)
+    return license
+
+
+def delete_license(id_: int, db: Session):
+    db_license = get_license(id_, db)
+
+    db.delete(db_license)
+    db.commit()
+    return db_license
+
+
+def update_license(id_: int, license_info: schemas.LicenseUpdate, db: Session):
+    db_license = get_license(id_, db)
+    
+    db_license.name = license_info.name
+    db_license.is_active = license_info.is_active
+    db_license.valid_date = license_info.valid_date
+    
+    db.commit()
+    db.refresh(db_license)
+    return db_license
+
+
+def set_is_active_license(id_: int, is_active: bool, db: Session):
+    db_license = get_license(id_, db)
+    db_license.is_active = is_active
+    
+    db.commit()
+    db.refresh(db_license)
+    return db_license

@@ -16,6 +16,7 @@ class User(Base):
     email = Column(String(50), unique=True, index=True)
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=False)
+    licenses = relationship("License", back_populates="user", passive_deletes=True)
     create_date = Column(DateTime(timezone=True), default=datetime.now)
     update_date = Column(DateTime(timezone=True), default=datetime.now, onupdate=datetime.now)
 
@@ -28,5 +29,21 @@ class File(Base):
     save_name = Column(String(255), index=True, comment="저장된 파일명")
     size = Column(Integer)
     is_active = Column(Boolean, default=False)
+    licenses = relationship("License", back_populates="file", passive_deletes=True)
+    create_date = Column(DateTime(timezone=True), default=datetime.now)
+    update_date = Column(DateTime(timezone=True), default=datetime.now, onupdate=datetime.now)
+
+
+class License(Base):
+    __tablename__ = "licenses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), index=True)
+    is_active = Column(Boolean, default=False)
+    valid_date = Column(DateTime(timezone=True))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="licenses")
+    file_id = Column(Integer, ForeignKey("files.id"))
+    file = relationship("File", back_populates="licenses")
     create_date = Column(DateTime(timezone=True), default=datetime.now)
     update_date = Column(DateTime(timezone=True), default=datetime.now, onupdate=datetime.now)

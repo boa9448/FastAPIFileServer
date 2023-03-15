@@ -8,7 +8,7 @@ from fastapi_file_server import crud, schemas, exceptions
 from fastapi_file_server.database import get_db
 from fastapi_file_server.libs import hash, token, AUTHORIZATION
 from fastapi_file_server.libs.api_depends import (admin_required
-                                                , get_user)
+                                                , get_current_user)
 
 
 vrify_router = APIRouter(dependencies=[Depends(admin_required)])
