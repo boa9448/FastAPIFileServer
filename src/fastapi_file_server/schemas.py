@@ -4,23 +4,24 @@ from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
-    user_id: str
     name: str
     email: str
 
 
 class UserCreate(UserBase):
+    user_id: str
     password1: str
     password2: str
 
 
 class UserUpdate(UserBase):
-    is_admin: bool
-    is_active: bool
+    password1: str
+    password2: str
 
 
 class User(UserBase):
     id: int
+    user_id: str
     is_admin: bool
     is_active: bool
     create_date: datetime

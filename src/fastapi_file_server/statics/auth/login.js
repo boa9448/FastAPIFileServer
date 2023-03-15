@@ -39,7 +39,7 @@
         });
 
         const jqXHR = $.ajax({
-            url: "/api/v1/auth/token/login/",
+            url: "/api/v1/auth/login/",
             type: "post",
             data: data,
             contentType: "application/json",

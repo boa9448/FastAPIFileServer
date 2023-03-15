@@ -61,8 +61,6 @@ def update_user(id_: int, user_info: schemas.UserUpdate, db: Session):
     
     db_user.name = user_info.name
     db_user.email = user_info.email
-    db_user.is_admin = user_info.is_admin
-    db_user.is_active = user_info.is_active
     
     db.commit()
     db.refresh(db_user)
