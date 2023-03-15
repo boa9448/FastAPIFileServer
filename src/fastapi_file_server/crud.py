@@ -23,12 +23,20 @@ def get_user_by_user_id(user_id: str, db: Session):
     return db_user
 
 
+def is_exist_user_by_user_id(user_id: str, db: Session):
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if not db_user:
+        return False
+    
+    return True
+
+
 def get_user_list_query(db: Session):
     return db.query(models.User)
 
 
 def create_user(user_info: schemas.UserCreate, db: Session):
-    if get_user_by_user_id(user_info.user_id, db):
+    if is_exist_user_by_user_id(user_info.user_id, db):
         raise exceptions.UserAlreadyExists()
 
     if user_info.password1 != user_info.password2:

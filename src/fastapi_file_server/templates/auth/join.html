@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+                        <h3 class="mb-5">Join</h3>
+                        <div class="form-floating mb-2">
+                            <input type="text" class="form-control" id="user-id" placeholder="아이디">
+                            <label for="user-id">아이디</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="password" class="form-control" id="password1" placeholder="비밀번호">
+                            <label for="password1">비밀번호</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="password" class="form-control" id="password2" placeholder="비밀번호 확인">
+                            <label for="password2">비밀번호 확인</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="text" class="form-control" id="name" placeholder="홍길동">
+                            <label for="name">이름 (홍길동)</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                            <label for="email">이메일 (name@example.com)</label>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-light btn-block" id="back-btn" type="button">Back</button>
+                            <button class="btn btn-primary btn-block" id="join-btn" type="button">
+                                Join
+                                <span class="spinner-border spinner-border-sm d-none" id="join-spinner" role="status" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock%}
+{% block extra_script %}
+<script src="{{ url_for('static', path='auth/join.js') }}"></script>
+{% endblock %}

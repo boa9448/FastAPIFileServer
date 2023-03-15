@@ -15,3 +15,8 @@ async def login(render = Depends(get_render)):
 @router.get("/logout/", response_class=HTMLResponse, dependencies=[Depends(clear_token)])
 async def logout(render = Depends(get_render)):
     return render("/auth/login.html")
+
+
+@router.get("/join/", response_class=HTMLResponse)
+async def join(render = Depends(get_render)):
+    return render("/auth/join.html")
