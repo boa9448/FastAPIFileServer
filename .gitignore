@@ -140,3 +140,7 @@ dmypy.json
 #sqlite db
 *.db
 *.sqlite3
+
+
+# files from server management
+/files

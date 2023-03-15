@@ -17,6 +17,7 @@ from fastapi_file_server.libs.api_depends import admin_required
 
 
 vrify_router = APIRouter(dependencies=[Depends(admin_required)])
+un_vrify_router = APIRouter()
 router = APIRouter(prefix="/api/v1/file", tags=["file"])
 FILE_DIR = os.path.abspath(get_config().file_dir)
 
@@ -27,7 +28,7 @@ async def list_file(db: Session = Depends(get_db)):
     return paginate(file_query)
 
 
-@router.get("/download/{id_}/", response_class=FileResponse)
+@un_vrify_router.get("/download/{id_}/", response_class=FileResponse)
 async def download_file(id_: int
                         , license_token: str = Query()
                         , db: Session = Depends(get_db)):
@@ -80,5 +81,6 @@ async def file_set_is_active(id_: int, is_active: bool, db: Session = Depends(ge
     return file
 
 
+router.include_router(un_vrify_router)
 router.include_router(vrify_router)
 add_pagination(router)
