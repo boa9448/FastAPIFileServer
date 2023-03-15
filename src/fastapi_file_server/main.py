@@ -8,6 +8,7 @@ from fastapi_file_server.templates import get_render
 from fastapi_file_server.config import get_config
 from fastapi_file_server.views.apis import auth as api_auth
 from fastapi_file_server.views.apis import file as api_file
+from fastapi_file_server.views.apis import license as api_license
 
 
 def create_app() -> FastAPI:
@@ -16,6 +17,7 @@ def create_app() -> FastAPI:
     app = FastAPI()
     app.include_router(api_auth.router)
     app.include_router(api_file.router)
+    app.include_router(api_license.router)
 
 
     @app.on_event("startup")

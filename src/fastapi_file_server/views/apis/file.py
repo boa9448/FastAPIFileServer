@@ -23,10 +23,7 @@ FILE_DIR = os.path.abspath(get_config().file_dir)
 @router.get("/list/", response_model=Page[schemas.File])
 async def list_files(db_user: models.User = Depends(get_user), db: Session = Depends(get_db)):
     file_query = crud.get_file_list_query(db)
-
-    if not db_user.is_admin:
-        file_query = file_query.filter(models.File.is_active == True)
-
+    file_query = file_query.filter(models.File.is_active == True)
     return paginate(file_query)
 
 
@@ -39,6 +36,12 @@ async def download_file(id_: int, db: Session = Depends(get_db)):
     file_path = os.path.join(FILE_DIR, file_name)
 
     return FileResponse(file_path, filename=file.name)
+
+
+@vrify_router.get("/list/all/", response_model=Page[schemas.File])
+async def list_all_files(db: Session = Depends(get_db)):
+    file_query = crud.get_file_list_query(db)
+    return paginate(file_query)
 
 
 @vrify_router.post("/upload/", response_model=schemas.File)
