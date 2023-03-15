@@ -14,17 +14,18 @@ from fastapi_file_server.libs.api_depends import (token_required
 
 
 vrify_router = APIRouter(dependencies=[Depends(admin_required)])
+un_vrify_router = APIRouter()
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
-@router.post("/user/create/", response_model=schemas.User)
+@un_vrify_router.post("/create/", response_model=schemas.User)
 async def user_create(user_info : schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.create_user(user_info, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
-@router.post("/user/token/")
+@un_vrify_router.post("/token/")
 async def user_token(user_info: schemas.UserLogin, response: Response, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_user_id(user_info.user_id, db)
     if not hash.verify_password(user_info.password, db_user.password):
@@ -37,7 +38,7 @@ async def user_token(user_info: schemas.UserLogin, response: Response, db: Sessi
     return {}
 
 
-@router.post("/user/token/session/")
+@un_vrify_router.post("/token/session/")
 async def user_token_session(request: Request, user_info: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_user_id(user_info.user_id, db)
     if not hash.verify_password(user_info.password, db_user.password):
@@ -50,7 +51,7 @@ async def user_token_session(request: Request, user_info: schemas.UserLogin, db:
 
 
 
-@router.post("/user/login/")
+@un_vrify_router.post("/login/")
 async def user_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     db_user = crud.get_user_by_user_id(form_data.username, db)
     if not hash.verify_password(form_data.password, db_user.password):
@@ -60,40 +61,41 @@ async def user_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessi
     return {"access_token": user_token, "token_type": "bearer"}
 
 
-@vrify_router.get("/user/info/{id_}/", response_model=schemas.User)
+@vrify_router.get("/info/{id_}/", response_model=schemas.User)
 async def user_info(id_: str, db: Session = Depends(get_db)):
     db_user = crud.get_user(id, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
-@vrify_router.patch("/user/update/{id_}/", response_model=schemas.User)
+@vrify_router.patch("/update/{id_}/", response_model=schemas.User)
 async def user_update(id_: str, user_info: schemas.UserUpdate, db: Session = Depends(get_db)):
     db_user = crud.update_user(id, user_info, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
-@vrify_router.delete("/user/delete/{id_}/", response_model=schemas.User)
+@vrify_router.delete("/delete/{id_}/", response_model=schemas.User)
 async def user_delete(id_: str, db: Session = Depends(get_db)):
     db_user = crud.delete_user(id, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
-@vrify_router.patch("/user/admin/{id_}/", response_model=schemas.User)
+@vrify_router.patch("/admin/{id_}/", response_model=schemas.User)
 async def user_set_is_admin(id_: str, is_admin: bool, db: Session = Depends(get_db)):
     db_user = crud.set_is_admin_user(id, is_admin, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
-@vrify_router.patch("/user/active/{id_}/", response_model=schemas.User)
+@vrify_router.patch("/active/{id_}/", response_model=schemas.User)
 async def user_set_is_active(id_: str, is_active: bool, db: Session = Depends(get_db)):
     db_user = crud.set_is_active_user(id, is_active, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
+router.include_router(un_vrify_router)
 router.include_router(vrify_router)
 add_pagination(router)
