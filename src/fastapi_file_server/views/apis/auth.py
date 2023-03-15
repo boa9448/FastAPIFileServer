@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, Response, Query
+from fastapi import APIRouter, Depends, Response, Query, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import Page, add_pagination
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -7,7 +7,9 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_file_server import crud, schemas, exceptions
 from fastapi_file_server.database import get_db
 from fastapi_file_server.libs import hash, token, AUTHORIZATION
-from fastapi_file_server.libs.api_depends import (admin_required
+from fastapi_file_server.libs import session_depends
+from fastapi_file_server.libs.api_depends import (token_required
+                                                , admin_required
                                                 , get_current_user)
 
 
@@ -29,10 +31,23 @@ async def user_token(user_info: schemas.UserLogin, response: Response, db: Sessi
         raise exceptions.PassWordNotMatch()
 
     user_token = token.create_access_token(db_user.id)
-    response.headers[AUTHORIZATION] = f"baerer {user_token}"
+    response.headers[AUTHORIZATION] = f"bearer {user_token}"
 
     #empty response
     return {}
+
+
+@router.post("/user/token/session/")
+async def user_token_session(request: Request, user_info: schemas.UserLogin, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_user_id(user_info.user_id, db)
+    if not hash.verify_password(user_info.password, db_user.password):
+        raise exceptions.PassWordNotMatch()
+
+    user_token = token.create_access_token(db_user.id)
+    session_depends.set_token(request, user_token)
+
+    return {"redirect_url": "/"}
+
 
 
 @router.post("/user/login/")
