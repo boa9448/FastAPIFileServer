@@ -1,7 +1,6 @@
 import os
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -11,6 +10,7 @@ from fastapi_file_server import STATICS_DIR
 from fastapi_file_server.database import create_db
 from fastapi_file_server.templates import get_render, get_render_with_user
 from fastapi_file_server.config import get_config
+from fastapi_file_server.exceptions import RedirectException
 from fastapi_file_server.views import auth
 from fastapi_file_server.views.apis import auth as api_auth
 from fastapi_file_server.views.apis import file as api_file
@@ -44,9 +44,7 @@ def create_app() -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     async def index(render = Depends(get_render_with_user)):
         return render("index.html")
-    
 
-    app.add_middleware(SessionMiddleware, secret_key = config.session_secret_key)
     
     @app.middleware("http")
     async def no_cache_middleware(request: Request, call_next):
@@ -59,7 +57,7 @@ def create_app() -> FastAPI:
 
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_404_exception_handler(request, exc):
+    async def http_401_or_404_exception_handler(request, exc):
         url = request.url.path
         is_api = url.startswith("/api")
 
@@ -69,6 +67,9 @@ def create_app() -> FastAPI:
         if exc.status_code == 404:
             render = get_render(request)
             return render("404.html")
+        elif exc.status_code == 401:
+            exc = RedirectException("/auth/login/")
+            return await http_exception_handler(request, exc)
 
         return await http_exception_handler(request, exc)
 

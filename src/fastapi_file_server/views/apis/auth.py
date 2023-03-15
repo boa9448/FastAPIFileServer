@@ -7,8 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_file_server import crud, schemas, exceptions
 from fastapi_file_server.database import get_db
 from fastapi_file_server.libs import hash, token, AUTHORIZATION
-from fastapi_file_server.libs import session_depends
-from fastapi_file_server.libs.api_depends import (token_required
+from fastapi_file_server.libs.depends import (token_required
                                                 , admin_required
                                                 , get_current_user)
 
@@ -25,40 +24,37 @@ async def user_create(user_info : schemas.UserCreate, db: Session = Depends(get_
     return user
 
 
-@un_vrify_router.post("/token/")
+@un_vrify_router.post("/token/login/")
 async def user_token(user_info: schemas.UserLogin, response: Response, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_user_id(user_info.user_id, db)
     if not hash.verify_password(user_info.password, db_user.password):
         raise exceptions.PassWordNotMatch()
 
     user_token = token.create_access_token(db_user.id)
-    response.headers[AUTHORIZATION] = f"bearer {user_token}"
+    user_token = f"bearer {user_token}"
+    response.headers[AUTHORIZATION] = user_token
+    response.set_cookie(AUTHORIZATION, user_token, httponly=True, samesite="strict", secure=True)
 
     #empty response
     return {}
 
 
-@un_vrify_router.post("/token/session/")
-async def user_token_session(request: Request, user_info: schemas.UserLogin, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_user_id(user_info.user_id, db)
-    if not hash.verify_password(user_info.password, db_user.password):
-        raise exceptions.PassWordNotMatch()
-
-    user_token = token.create_access_token(db_user.id)
-    session_depends.set_token(request, user_token)
-
-    return {"redirect_url": "/"}
-
-
-
 @un_vrify_router.post("/login/")
-async def user_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def user_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     db_user = crud.get_user_by_user_id(form_data.username, db)
     if not hash.verify_password(form_data.password, db_user.password):
         raise exceptions.PassWordNotMatch()
 
     user_token = token.create_access_token(db_user.id)
+    cookie_token = f"bearer {user_token}"
+    response.set_cookie(AUTHORIZATION, cookie_token, httponly=True, samesite="strict", secure=True)
     return {"access_token": user_token, "token_type": "bearer"}
+
+
+@un_vrify_router.get("/logout/")
+async def user_logout(response: Response):
+    response.delete_cookie(AUTHORIZATION)
+    return {}
 
 
 @vrify_router.get("/info/{id_}/", response_model=schemas.User)

@@ -19,8 +19,7 @@
 
         show_spinner(true);
         jqXHR.then(function(data, textStatus, jqXHR){
-            const redirect_url = data.redirect_url;
-            window.location.href = redirect_url;
+            window.location.href = "/";
         }).fail(function(jqXHR, textStatus, errorThrown){
             const data = jqXHR.responseJSON;
             const error = data["error"];
@@ -40,7 +39,7 @@
         });
 
         const jqXHR = $.ajax({
-            url: "/api/v1/auth/user/token/session/",
+            url: "/api/v1/auth/token/login/",
             type: "post",
             data: data,
             contentType: "application/json",

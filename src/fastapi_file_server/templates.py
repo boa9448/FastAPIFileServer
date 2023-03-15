@@ -2,7 +2,7 @@ from fastapi import Request, Depends
 from fastapi.templating import Jinja2Templates
 
 from fastapi_file_server import TEMPLATES_DIR
-from fastapi_file_server.libs.session_depends import get_current_user
+from fastapi_file_server.libs.depends import get_current_user
 
 
 g_templates = Jinja2Templates(directory=TEMPLATES_DIR)
