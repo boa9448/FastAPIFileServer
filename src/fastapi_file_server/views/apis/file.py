@@ -13,7 +13,7 @@ from fastapi_file_server.config import get_config
 from fastapi_file_server.database import get_db
 from fastapi_file_server.libs import token
 from fastapi_file_server.libs.license import is_alive_license
-from fastapi_file_server.libs.depends import admin_required
+from fastapi_file_server.libs.depends import active_required, admin_required, get_current_user
 
 
 verify_router = APIRouter(dependencies=[Depends(admin_required)])
@@ -21,11 +21,6 @@ un_verify_router = APIRouter()
 router = APIRouter(prefix="/api/v1/file", tags=["file"])
 FILE_DIR = os.path.abspath(get_config().file_dir)
 
-
-@verify_router.get("/list/", response_model=Page[schemas.File])
-async def list_file(db: Session = Depends(get_db)):
-    file_query = crud.get_file_list_query(db)
-    return paginate(file_query)
 
 
 @un_verify_router.get("/download/{id_}/", response_class=FileResponse)
@@ -43,6 +38,12 @@ async def download_file(id_: int
     file_name = db_file.save_name
     file_path = os.path.join(FILE_DIR, file_name)
     return FileResponse(file_path, filename=db_file.name)
+
+
+@verify_router.get("/list/", response_model=Page[schemas.File])
+async def list_file(db: Session = Depends(get_db)):
+    file_query = crud.get_file_list_query(db)
+    return paginate(file_query)
 
 
 @verify_router.post("/upload/", response_model=schemas.File)

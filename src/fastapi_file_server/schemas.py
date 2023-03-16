@@ -89,6 +89,7 @@ class LicenseUpdate(LicenseBase):
 
 class License(LicenseBase):
     id: int
+    file: File
     create_date: datetime
     update_date: datetime
 

@@ -11,10 +11,10 @@ from fastapi_file_server.database import create_db
 from fastapi_file_server.templates import get_render, get_render_with_user
 from fastapi_file_server.config import get_config
 from fastapi_file_server.exceptions import RedirectException
-from fastapi_file_server.views import auth
-from fastapi_file_server.views.apis import auth as api_auth
-from fastapi_file_server.views.apis import file as api_file
-from fastapi_file_server.views.apis import license as api_license
+from fastapi_file_server.views import auth, license
+from fastapi_file_server.views.apis import (auth as api_auth
+                                            , file as api_file
+                                            , license as api_license)
 
 
 def create_app() -> FastAPI:
@@ -26,7 +26,7 @@ def create_app() -> FastAPI:
     app.mount("/static", static, name="static")
 
     app.include_router(auth.router)
-    
+    app.include_router(license.router)
     app.include_router(api_auth.router)
     app.include_router(api_file.router)
     app.include_router(api_license.router)
@@ -42,8 +42,8 @@ def create_app() -> FastAPI:
 
 
     @app.get("/", response_class=HTMLResponse)
-    async def index(render = Depends(get_render_with_user)):
-        return render("index.html")
+    async def index():
+        raise RedirectException("/license/list/")
 
     
     @app.middleware("http")
