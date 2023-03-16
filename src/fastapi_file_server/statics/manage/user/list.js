@@ -12,6 +12,7 @@
         $("#user-list").on("click", ".show-license-btn", show_license_btn_handler);
         $("#user-list").on("click", ".edit-license-btn", edit_license_btn_handler);
         $("#user-list").on("click", ".download-license-btn", download_license_btn_handler);
+        $("#user-list").on("click", ".active-license-btn", active_license_btn_handler);
 
         load_data();
     }
@@ -136,12 +137,13 @@
         const file_kb_size = (file.size / 1024).toFixed(2);
 
         const splited_valid_date = valid_date.split("T")[0];
-        const disabled = is_active ? "" : "disabled";
-        const deactive_tag = is_active ? "" : `<span class="badge bg-danger me-3">만료</span>`;
+        //const disabled = is_active ? "" : "disabled";
+        const deactive_tag = create_license_deactive_tag(license_id, is_active);
         const edit_btn_tag = create_license_edit_btn_tag(license_id);
+        const active_btn_tag = create_license_active_btn_tag(license_id, is_active);
 
         const list_tag = `
-        <li class="list-group-item d-flex justify-content-between license-item ${disabled}" data-license-id=${license.id}>
+        <li class="list-group-item d-flex justify-content-between license-item" data-license-id=${license.id}>
             <div class="d-flex justify-content-start flex-grow-1 me-2">
                 <div class="license-list-item pt-1 container" data-license-id=${license.id} data-file-id=${file_id}>
                     <div class="row">
@@ -155,13 +157,25 @@
             <div class="d-flex justify-content-end align-items-center">
                 ${deactive_tag}
                 ${edit_btn_tag}
-                <button type="button" class="btn btn-sm btn-outline-primary download-license-btn" data-license-id=${license_id}>
+                <button type="button" class="btn btn-sm btn-outline-primary download-license-btn me-2" data-license-id=${license_id}>
                     <i class="fa-solid fa-file-arrow-down"></i>
                 </button>
+                ${active_btn_tag}
             </div>
         </li>`;
 
         return list_tag;
+    }
+
+
+    function create_license_deactive_tag(license_id, is_active) {
+        const visible_class = is_active ? "d-none" : "d-inline-block";
+        const deactive_tag = `
+        <span class="badge bg-danger me-3 ${visible_class}" data-license-id=${license_id}>
+            비활성
+        </span>`;
+
+        return deactive_tag;
     }
 
 
@@ -170,6 +184,17 @@
         <button class="btn btn-sm btn-outline-success edit-license-btn me-2" data-license-id=${ license_id }
             data-bs-toggle="modal" data-bs-target="#license-edit-modal">
             <i class="fa-solid fa-pen"></i>
+        </button>`;
+
+        return btn_tag;
+    }
+
+
+    function create_license_active_btn_tag(license_id, is_active) {
+        const btn_color = !is_active ? "btn-outline-primary" : "btn-outline-danger";
+        const btn_tag = `
+        <button type="button" class="btn btn-sm ${btn_color} active-license-btn" data-license-id=${license_id} data-is-active=${is_active}>
+            <i class="fa-regular fa-circle-stop"></i>
         </button>`;
 
         return btn_tag;
@@ -238,6 +263,7 @@
         });
 
         jqXHR.then(function(data, textStatus, jqXHR){
+            const license_id = data.id;
             const is_active = data.is_active;
             const btn_tag = create_active_btn_tag(user_id, is_active);
             $(`button.active-btn[data-user-id=${user_id}]`).replaceWith(btn_tag);
@@ -315,6 +341,43 @@
         }).fail(function(jqXHR, textStatus, errorThrown){
             const error_code = jqXHR.status;
             const message = jqXHR.responseJSON.detail;
+            alert(message);
+        });
+    }
+
+
+    function active_license_btn_handler(){
+        const license_id = $(this).data("license-id");
+        const is_active = $(this).data("is-active");
+
+        const confirm_message = is_active ? "정말로 비활성화 하시겠습니까?" : "정말로 활성화 하시겠습니까?";
+        const is_confirm = confirm(confirm_message);
+        if(!is_confirm){
+            return;
+        }
+
+        const jqXHR = $.ajax({
+            url: `/api/v1/license/active/${license_id}/?is_active=${!is_active}`,
+            type: "patch",
+            contentType: "application/json",
+        });
+
+        jqXHR.then(function(data, textStatus, jqXHR){
+            const finded_license = find_license_by_id(license_id);
+            finded_license.is_active = data.is_active;
+            
+            const is_active = data.is_active;
+            const btn_tag = create_license_active_btn_tag(license_id, is_active);
+            const badge = $(`span.badge[data-license-id=${license_id}]`);
+            if(is_active){
+                badge.addClass("d-none");
+            }else{
+                badge.removeClass("d-none");
+            }
+            $(`button.active-license-btn[data-license-id=${license_id}]`).replaceWith(btn_tag);
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            const message = jqXHR.responseJSON.detail;
+            console.log(message);
             alert(message);
         });
     }

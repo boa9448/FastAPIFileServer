@@ -69,7 +69,7 @@ async def license_update(id_: int, license_info: schemas.LicenseUpdate, db: Sess
     return license
 
 
-@verify_router.post("/active/{id_}", response_model=schemas.License)
+@verify_router.patch("/active/{id_}", response_model=schemas.License)
 async def license_active(id_: int, is_active: bool, db: Session = Depends(get_db)):
     db_license = crud.set_is_active_license(id_, is_active, db)
     license = schemas.License.from_orm(db_license)
