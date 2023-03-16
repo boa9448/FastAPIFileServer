@@ -8,6 +8,11 @@
         });
 
         $("#login-btn").click(loging_btn_handler);
+        $("#password").on("keypress", function(e){
+            if(e.which == 13){
+                loging_btn_handler();
+            }
+        });
     }
 
 

@@ -7,6 +7,7 @@
         });
 
         $("#password-edit-btn").click(function(){
+            alert("아직 안 만들었어요 ㅋㅋㅋ");
             window.location.href = "/auth/password/edit/";
         });
 
