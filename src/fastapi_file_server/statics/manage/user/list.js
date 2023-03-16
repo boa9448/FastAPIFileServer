@@ -11,6 +11,7 @@
         $("#user-list").on("click", ".admin-btn", admin_btn_handler);
         $("#user-list").on("click", ".show-license-btn", show_license_btn_handler);
         $("#user-list").on("click", ".edit-license-btn", edit_license_btn_handler);
+        $("#user-list").on("click", ".download-license-btn", download_license_btn_handler);
 
         load_data();
     }
@@ -154,7 +155,7 @@
             <div class="d-flex justify-content-end align-items-center">
                 ${deactive_tag}
                 ${edit_btn_tag}
-                <button type="button" class="btn btn-sm btn-outline-primary download-btn" data-license-id=${license_id}>
+                <button type="button" class="btn btn-sm btn-outline-primary download-license-btn" data-license-id=${license_id}>
                     <i class="fa-solid fa-file-arrow-down"></i>
                 </button>
             </div>
@@ -292,6 +293,29 @@
             license.valid_date = localISOTime;
             edit_license(license);
             modal.hide();
+        });
+    }
+
+
+    function download_license_btn_handler(){
+        if(!confirm("해당 유저의 라이선스를 이용하여 다운로드 하시겠습니까?")){
+            return;
+        }
+
+        const license_id = $(this).data("license-id");
+        const jqXHR = $.ajax({
+            url: `/api/v1/license/token/${license_id}/`,
+            type: "get",
+        });
+
+        jqXHR.then(function(data, textStatus, jqXHR){
+            const token = data.license_token;
+            const download_url = `/api/v1/file/download/?license_token=${token}`;
+            window.open(download_url, "_blank");
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            const error_code = jqXHR.status;
+            const message = jqXHR.responseJSON.detail;
+            alert(message);
         });
     }
 

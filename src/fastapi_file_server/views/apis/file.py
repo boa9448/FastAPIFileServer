@@ -23,18 +23,17 @@ FILE_DIR = os.path.abspath(get_config().file_dir)
 
 
 
-@un_verify_router.get("/download/{id_}/", response_class=FileResponse)
-async def download_file(id_: int
-                        , license_token: str = Query()
+@un_verify_router.get("/download/", response_class=FileResponse)
+async def download_file(license_token: str = Query()
                         , db: Session = Depends(get_db)):
     decode_license_token = token.decode_token(license_token)
     license_id = int(decode_license_token.get("sub"))
     db_license = crud.get_license(license_id, db)
-    is_alive = is_alive_license(db_license) and db_license.file_id == id_
+    is_alive = is_alive_license(db_license)
     if is_alive is False:
         raise exceptions.FileNotFound()
 
-    db_file = crud.get_file(id_, db)
+    db_file = crud.get_file(db_license.file_id, db)
     file_name = db_file.save_name
     file_path = os.path.join(FILE_DIR, file_name)
     return FileResponse(file_path, filename=db_file.name)

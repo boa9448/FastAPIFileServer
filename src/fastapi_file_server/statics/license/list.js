@@ -8,8 +8,7 @@
     function init(){
         $("#license-list").on("click", ".download-btn", function(e){
             const license_id = $(this).data("license-id");
-            const file_id = $(this).parent().parent().find(".license-list-item").data("file-id");
-            download_file(license_id, file_id);
+            download_file(license_id);
         });
 
         load_data();
@@ -67,7 +66,7 @@
     }
 
 
-    function download_file(license_id, file_id){
+    function download_file(license_id){
         const jqXHR = $.ajax({
             url: `/api/v1/license/token/${license_id}/`,
             type: "get",
@@ -75,7 +74,7 @@
 
         jqXHR.then(function(data, textStatus, jqXHR){
             const token = data.license_token;
-            const download_url = `/api/v1/file/download/${file_id}/?license_token=${token}`;
+            const download_url = `/api/v1/file/download/?license_token=${token}`;
             window.open(download_url, "_blank");
         }).fail(function(jqXHR, textStatus, errorThrown){
             const error_code = jqXHR.status;
@@ -102,7 +101,7 @@
         const list_tag = `
         <li class="list-group-item d-flex justify-content-between list-group-item-action ${disabled}">
             <div class="d-flex justify-content-start flex-grow-1 me-2">
-                <div class="license-list-item pt-1 container" data-license-id=${license.id} data-file-id=${file_id}>
+                <div class="license-list-item pt-1 container" data-license-id=${license.id}>
                     <div class="row">
                         ${file_name} (${file_kb_size} KB)
                     </div>
