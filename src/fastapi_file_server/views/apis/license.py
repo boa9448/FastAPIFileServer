@@ -12,8 +12,8 @@ from fastapi_file_server.libs.license import find_license, is_alive_license
 from fastapi_file_server.libs.depends import admin_required, active_required, get_current_user
 
 
-vrify_router = APIRouter(dependencies=[Depends(admin_required)])
-un_vrify_router = APIRouter()
+verify_router = APIRouter(dependencies=[Depends(admin_required)])
+un_verify_router = APIRouter()
 router = APIRouter(prefix="/api/v1/license", tags=["license"], dependencies=[Depends(active_required)])
 
 
@@ -34,7 +34,7 @@ async def license_token(id_: int, db_user: models.User = Depends(get_current_use
     return {"license_token": license_token}
 
 
-@un_vrify_router.get("/check/")
+@un_verify_router.get("/check/")
 async def license_check(licence_token: str, db: Session = Depends(get_db)):
     decoded_token = token.decode_token(licence_token)
     id_ = decoded_token.get("sub")
@@ -48,34 +48,34 @@ async def license_check(licence_token: str, db: Session = Depends(get_db)):
             , "is_alive": is_alive}
 
 
-@vrify_router.post("/create/", response_model=schemas.License)
+@verify_router.post("/create/", response_model=schemas.License)
 async def license_create(license_info: schemas.LicenseCreate, db: Session = Depends(get_db)):
     db_license = crud.create_license(license_info, db)
     license = schemas.License.from_orm(db_license)
     return license
 
 
-@vrify_router.post("/delete/{id_}", response_model=schemas.License)
+@verify_router.post("/delete/{id_}", response_model=schemas.License)
 async def license_delete(id_: int, db: Session = Depends(get_db)):
     db_license = crud.delete_license(id_, db)
     license = schemas.License.from_orm(db_license)
     return license
 
 
-@vrify_router.patch("/update/{id_}", response_model=schemas.License)
+@verify_router.patch("/update/{id_}", response_model=schemas.License)
 async def license_update(id_: int, license_info: schemas.LicenseUpdate, db: Session = Depends(get_db)):
     db_license = crud.update_license(id_, license_info, db)
     license = schemas.License.from_orm(db_license)
     return license
 
 
-@vrify_router.post("/active/{id_}", response_model=schemas.License)
+@verify_router.post("/active/{id_}", response_model=schemas.License)
 async def license_active(id_: int, is_active: bool, db: Session = Depends(get_db)):
     db_license = crud.set_is_active_license(id_, is_active, db)
     license = schemas.License.from_orm(db_license)
     return license
 
 
-router.include_router(un_vrify_router)
-router.include_router(vrify_router)
+router.include_router(un_verify_router)
+router.include_router(verify_router)
 add_pagination(router)

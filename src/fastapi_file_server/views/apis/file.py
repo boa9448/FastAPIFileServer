@@ -16,19 +16,19 @@ from fastapi_file_server.libs.license import is_alive_license
 from fastapi_file_server.libs.depends import admin_required
 
 
-vrify_router = APIRouter(dependencies=[Depends(admin_required)])
-un_vrify_router = APIRouter()
+verify_router = APIRouter(dependencies=[Depends(admin_required)])
+un_verify_router = APIRouter()
 router = APIRouter(prefix="/api/v1/file", tags=["file"])
 FILE_DIR = os.path.abspath(get_config().file_dir)
 
 
-@vrify_router.get("/list/", response_model=Page[schemas.File])
+@verify_router.get("/list/", response_model=Page[schemas.File])
 async def list_file(db: Session = Depends(get_db)):
     file_query = crud.get_file_list_query(db)
     return paginate(file_query)
 
 
-@un_vrify_router.get("/download/{id_}/", response_class=FileResponse)
+@un_verify_router.get("/download/{id_}/", response_class=FileResponse)
 async def download_file(id_: int
                         , license_token: str = Query()
                         , db: Session = Depends(get_db)):
@@ -45,7 +45,7 @@ async def download_file(id_: int
     return FileResponse(file_path, filename=db_file.name)
 
 
-@vrify_router.post("/upload/", response_model=schemas.File)
+@verify_router.post("/upload/", response_model=schemas.File)
 async def upload_file(upload_file: UploadFile, db: Session = Depends(get_db)):
     file_info = schemas.FileCreate(name=upload_file.filename
                                 , size=upload_file.size
@@ -61,7 +61,7 @@ async def upload_file(upload_file: UploadFile, db: Session = Depends(get_db)):
     return file
 
 
-@vrify_router.delete("/delete/{id_}/", response_model=schemas.File)
+@verify_router.delete("/delete/{id_}/", response_model=schemas.File)
 async def delete_file(id_: int, db: Session = Depends(get_db)):
     db_file = crud.delete_file(id_, db)
     file = schemas.File.from_orm(db_file)
@@ -74,13 +74,13 @@ async def delete_file(id_: int, db: Session = Depends(get_db)):
     return file
 
 
-@vrify_router.patch("/active/{id_}/", response_model=schemas.File)
+@verify_router.patch("/active/{id_}/", response_model=schemas.File)
 async def file_set_is_active(id_: int, is_active: bool, db: Session = Depends(get_db)):
     db_file = crud.set_is_active_file(id_, is_active, db)
     file = schemas.File.from_orm(db_file)
     return file
 
 
-router.include_router(un_vrify_router)
-router.include_router(vrify_router)
+router.include_router(un_verify_router)
+router.include_router(verify_router)
 add_pagination(router)

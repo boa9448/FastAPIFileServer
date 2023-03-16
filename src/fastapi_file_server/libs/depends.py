@@ -57,7 +57,7 @@ class OAuth2PasswordBearerCookie(OAuth2):
             return None
 
 
-oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/api/v1/auth/token/")
+oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/api/v1/auth/login/form/")
 def token_required(token: str = Depends(oauth2_scheme)):
     return token
 
