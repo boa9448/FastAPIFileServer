@@ -81,7 +81,7 @@ async def user_edit(user_info: schemas.UserUpdate
     return user
 
 
-@verify_router.patch("/password/edit/")
+@un_verify_router.patch("/password/edit/")
 async def user_password_edit(user_info: schemas.UserPasswordUpdate
                             , current_user: models.User = Depends(get_current_user)
                             , db: Session = Depends(get_db)):
@@ -97,6 +97,12 @@ async def user_password_edit(user_info: schemas.UserPasswordUpdate
     
     db_user = crud.update_user_password(current_user.id, user_info, db)
     return {}
+
+
+@verify_router.get("/list/", response_model=Page[schemas.User])
+async def user_list(db: Session = Depends(get_db)):
+    query = crud.get_users_query(db)
+    return paginate(query)
 
 
 @verify_router.get("/info/{id_}/", response_model=schemas.User)

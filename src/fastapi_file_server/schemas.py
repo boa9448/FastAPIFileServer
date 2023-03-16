@@ -29,6 +29,7 @@ class User(UserBase):
     user_id: str
     is_admin: bool
     is_active: bool
+    licenses: list["License"]
     create_date: datetime
     update_date: datetime
 
@@ -95,3 +96,6 @@ class License(LicenseBase):
 
     class Config:
         orm_mode = True
+
+
+User.update_forward_refs()

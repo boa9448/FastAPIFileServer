@@ -7,6 +7,10 @@ from fastapi_file_server import models, schemas, exceptions
 from fastapi_file_server.libs import hash
 
 
+def get_users_query(db: Session):
+    return db.query(models.User)
+
+
 def get_user(id_: int, db: Session):
     db_user = db.query(models.User).filter(models.User.id == id_).first()
     if not db_user:

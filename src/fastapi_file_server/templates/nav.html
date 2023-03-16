@@ -10,6 +10,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/license/list/">라이선스</a>
                 </li>
+                {% if user.is_admin %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    관리
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/manage/user/list/">회원 관리</a></li>
+                        <li><a class="dropdown-item" href="/manage/file/list/">파일 관리</a></li>
+                    </ul>
+                </li>
+                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         {{ user.name }}

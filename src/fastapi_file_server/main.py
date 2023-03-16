@@ -11,7 +11,7 @@ from fastapi_file_server.database import create_db
 from fastapi_file_server.templates import get_render, get_render_with_user
 from fastapi_file_server.config import get_config
 from fastapi_file_server.exceptions import RedirectException
-from fastapi_file_server.views import auth, license
+from fastapi_file_server.views import auth, license, manage
 from fastapi_file_server.views.apis import (auth as api_auth
                                             , file as api_file
                                             , license as api_license)
@@ -27,6 +27,7 @@ def create_app() -> FastAPI:
 
     app.include_router(auth.router)
     app.include_router(license.router)
+    app.include_router(manage.router)
     app.include_router(api_auth.router)
     app.include_router(api_file.router)
     app.include_router(api_license.router)
