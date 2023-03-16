@@ -19,6 +19,11 @@ class UserUpdate(UserBase):
     password2: str
 
 
+class UserUpdateAdmin(UserBase):
+    is_admin: bool
+    is_active: bool
+
+
 class User(UserBase):
     id: int
     user_id: str

@@ -67,6 +67,19 @@ def update_user(id_: int, user_info: schemas.UserUpdate, db: Session):
     return db_user
 
 
+def update_user_admin(id_: int, user_info: schemas.UserUpdateAdmin, db: Session):
+    db_user = get_user(id_, db)
+    
+    db_user.name = user_info.name
+    db_user.email = user_info.email
+    db_user.is_active = user_info.is_active
+    db_user.is_admin = user_info.is_admin
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
 def update_user_password(id_: int, user_info: schemas.UserPasswordUpdate, db: Session):
     db_user = get_user(id_, db)
 

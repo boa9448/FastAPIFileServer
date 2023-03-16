@@ -107,7 +107,7 @@ async def user_info(id_: str, db: Session = Depends(get_db)):
 
 
 @verify_router.patch("/update/{id_}/", response_model=schemas.User)
-async def user_update(id_: str, user_info: schemas.UserUpdate, db: Session = Depends(get_db)):
+async def user_update(id_: str, user_info: schemas.UserUpdateAdmin, db: Session = Depends(get_db)):
     db_user = crud.update_user(id, user_info, db)
     user = schemas.User.from_orm(db_user)
     return user
@@ -115,21 +115,21 @@ async def user_update(id_: str, user_info: schemas.UserUpdate, db: Session = Dep
 
 @verify_router.delete("/delete/{id_}/", response_model=schemas.User)
 async def user_delete(id_: str, db: Session = Depends(get_db)):
-    db_user = crud.delete_user(id, db)
+    db_user = crud.delete_user(id_, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
 @verify_router.patch("/admin/{id_}/", response_model=schemas.User)
 async def user_set_is_admin(id_: str, is_admin: bool, db: Session = Depends(get_db)):
-    db_user = crud.set_is_admin_user(id, is_admin, db)
+    db_user = crud.set_is_admin_user(id_, is_admin, db)
     user = schemas.User.from_orm(db_user)
     return user
 
 
 @verify_router.patch("/active/{id_}/", response_model=schemas.User)
 async def user_set_is_active(id_: str, is_active: bool, db: Session = Depends(get_db)):
-    db_user = crud.set_is_active_user(id, is_active, db)
+    db_user = crud.set_is_active_user(id_, is_active, db)
     user = schemas.User.from_orm(db_user)
     return user
 
