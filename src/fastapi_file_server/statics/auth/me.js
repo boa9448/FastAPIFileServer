@@ -49,7 +49,8 @@
         const name = $("#user-name").val();
         const email = $("#user-email").val();
 
-        if(password1 != "" && password2 != ""){
+        if(password1 == "" || password2 == ""
+            || password1 == undefined || password2 == undefined){
             alert("비밀번호를 입력해주세요.");
             return;
         }
