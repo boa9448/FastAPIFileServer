@@ -28,3 +28,8 @@ async def join(render = Depends(get_render)):
 @router.get("/me/", response_class=HTMLResponse)
 async def me(render = Depends(get_render_with_user)):
     return render("/auth/me.html")
+
+
+@router.get("/password/edit/", response_class=HTMLResponse)
+async def password_edit(render = Depends(get_render_with_user)):
+    return render("/auth/password_edit.html")

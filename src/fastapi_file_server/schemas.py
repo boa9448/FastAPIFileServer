@@ -34,6 +34,12 @@ class User(UserBase):
 class UserLogin(BaseModel):
     user_id: str
     password: str
+
+
+class UserPasswordUpdate(BaseModel):
+    cur_password: str
+    password1: str
+    password2: str
     
 
 class FileBase(BaseModel):

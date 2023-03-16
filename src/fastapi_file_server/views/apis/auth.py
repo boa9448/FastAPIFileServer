@@ -81,6 +81,24 @@ async def user_edit(user_info: schemas.UserUpdate
     return user
 
 
+@vrify_router.patch("/password/edit/")
+async def user_password_edit(user_info: schemas.UserPasswordUpdate
+                            , current_user: models.User = Depends(get_current_user)
+                            , db: Session = Depends(get_db)):
+    if not (user_info.password1 or user_info.password2):
+        raise exceptions.PassWordNotMatch()
+    
+    if user_info.password1 != user_info.password2:
+        raise exceptions.PassWordNotMatch()
+    
+    is_verify = hash.verify_password(user_info.cur_password, current_user.password)
+    if not is_verify:
+        raise exceptions.PassWordNotMatch()
+    
+    db_user = crud.update_user_password(current_user.id, user_info, db)
+    return {}
+
+
 @vrify_router.get("/info/{id_}/", response_model=schemas.User)
 async def user_info(id_: str, db: Session = Depends(get_db)):
     db_user = crud.get_user(id, db)

@@ -7,7 +7,6 @@
         });
 
         $("#password-edit-btn").click(function(){
-            alert("아직 안 만들었어요 ㅋㅋㅋ");
             window.location.href = "/auth/password/edit/";
         });
 
@@ -61,13 +60,14 @@
             return;
         }
 
-        const data = JSON.stringify({
+        const data = {
             password1: password1,
             password2: password2,
             name: name,
             email: email,
-        });
+        };
 
+        show_edit_spinner(true);
         const jqXHR = edit_user_info(data);
         jqXHR.then(function(data, textStatus, jqXHR){
             alert("사용자 정보가 수정되었습니다.");
@@ -75,18 +75,30 @@
         }).fail(function(jqXHR, textStatus, errorThrown){
             const error = jqXHR.responseJSON;
             alert(`사용자 정보를 수정하는데 실패했습니다. ${error.detail}`);
+        }).always(function(){
+            show_edit_spinner(false);
         });
     }
 
     function edit_user_info(user_info){
+        const json_data = JSON.stringify(user_info);
         const jqXHR = $.ajax({
             url: "/api/v1/auth/edit/",
             type: "patch",
-            data: user_info,
+            data: json_data,
             contentType: "application/json",
         });
 
         return jqXHR;
+    }
+
+
+    function show_edit_spinner(is_show){
+        if(is_show){
+            $("#edit-spinner").removeClass("d-none");
+        }else{
+            $("#edit-spinner").addClass("d-none");
+        }
     }
 
 }(window.me = window.me || {}, jQuery));

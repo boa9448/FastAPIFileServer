@@ -67,6 +67,24 @@ def update_user(id_: int, user_info: schemas.UserUpdate, db: Session):
     return db_user
 
 
+def update_user_password(id_: int, user_info: schemas.UserPasswordUpdate, db: Session):
+    db_user = get_user(id_, db)
+
+    if user_info.password1 != user_info.password2:
+        raise exceptions.PassWordNotMatch()
+    
+    is_verify = hash.verify_password(user_info.cur_password, db_user.password)
+    if not is_verify:
+        raise exceptions.PassWordNotMatch()
+
+    password = hash.get_password_hash(user_info.password1)
+    db_user.password = password
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
 def delete_user(id_: int, db: Session):
     db_user = get_user(id_, db)
 
