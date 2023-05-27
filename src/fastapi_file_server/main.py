@@ -8,10 +8,8 @@ from fastapi.exception_handlers import http_exception_handler
 
 from fastapi_file_server import STATICS_DIR
 from fastapi_file_server.database import create_db
-from fastapi_file_server.templates import get_render, get_render_with_user
 from fastapi_file_server.config import get_config
 from fastapi_file_server.exceptions import RedirectException
-from fastapi_file_server.views import auth, license, manage
 from fastapi_file_server.views.apis import (auth as api_auth
                                             , file as api_file
                                             , license as api_license)
@@ -25,9 +23,6 @@ def create_app() -> FastAPI:
     static = StaticFiles(directory = STATICS_DIR)
     app.mount("/static", static, name="static")
 
-    app.include_router(auth.router)
-    app.include_router(license.router)
-    app.include_router(manage.router)
     app.include_router(api_auth.router)
     app.include_router(api_file.router)
     app.include_router(api_license.router)
@@ -41,11 +36,6 @@ def create_app() -> FastAPI:
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
 
-
-    @app.get("/", response_class=HTMLResponse)
-    async def index():
-        raise RedirectException("/license/list/")
-
     
     @app.middleware("http")
     async def no_cache_middleware(request: Request, call_next):
@@ -55,23 +45,5 @@ def create_app() -> FastAPI:
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
         return response
-
-
-    @app.exception_handler(StarletteHTTPException)
-    async def http_401_or_404_exception_handler(request, exc):
-        url = request.url.path
-        is_api = url.startswith("/api")
-
-        if is_api:
-            return await http_exception_handler(request, exc)
-
-        if exc.status_code == 404:
-            render = get_render(request)
-            return render("404.html")
-        elif exc.status_code == 401:
-            exc = RedirectException("/auth/login/")
-            return await http_exception_handler(request, exc)
-
-        return await http_exception_handler(request, exc)
 
     return app
